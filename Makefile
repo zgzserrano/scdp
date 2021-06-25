@@ -15,15 +15,6 @@ game:
 mpi:
 	$(MPICC) $(FLAGS) src/game_mpi.c -lm
 
-collective:
-	$(MPICC) $(FLAGS) src/game_mpi_collective.c -lm
-
-async:
-	$(MPICC) $(FLAGS) src/game_mpi_async.c -lm
-
-openmp:
-	$(MPICC) $(FLAGS) src/game_openmp.c -lm -fopenmp
-
 cuda:
 	$(NVCC) src/game_cuda.cu
 
