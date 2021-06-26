@@ -5,15 +5,19 @@
 #include <semaphore.h>
 #include <pthread.h>
 
+#include <time.h>
+
 #define THREADS_NUMBER 4
 
 #define GEN_LIMIT 1000
-
+#define TRUE 1
+#define FALSE 0
 
 typedef unsigned char cell_t;
 
 int size;
-int steps = 15, k;
+int width = 0, height = 0;
+int stop = FALSE, k;
 int num_threads, lines, reminder;
 
 cell_t ** prev, ** next, ** tmp;
@@ -32,6 +36,13 @@ void free_board (cell_t ** board) {
   for (i=0; i<size; i++)
   free(board[i]);
   free(board);
+}
+
+int empty (cell_t ** board) {
+  int     i, j;
+  for (i=0; i<height; i++) for (j = 0; j < width; j++)
+    if(board[i][j] == 1) return FALSE;
+  return TRUE;
 }
 
 
@@ -56,15 +67,12 @@ int adjacent_to (cell_t ** board, int i, int j) {
 /* read a file into the life board */
 void read_file (FILE * f, cell_t ** board) {
   int i, j;
-  char  *s = (char *) malloc(size+10);
-
-  /* read the first new line (it will be ignored) */
-  //fgets (s, size+10,f);
+  char  *s = (char *) malloc(size);
 
   /* read the life board */
   for (j=0; j<size; j++) {
     /* get a string */
-    fgets (s, size+10,f); //No entiendo el mas 10
+    fgets (s, size,f);
     /* copy the string to the life board */
     for (i=0; i<size; i++)
     board[i][j] = s[i] == '1';   // !!! Cambiado para poner 1 y no x
@@ -92,7 +100,7 @@ void play (int this_start, int this_end, int thread_id) {
   /* for each cell, apply the rules of Life */
   int a;
 
-  while (k < steps) {   //!!! De donde vendra esa k?
+  while (k < GEN_LIMIT) {   //!!! De donde vendra esa k?
   //SOL: k es la generacion x la que van entiendo, la acutaliada threadID == 0
 
     for (int i=this_start; i<this_end; i++) {
@@ -110,14 +118,16 @@ void play (int this_start, int this_end, int thread_id) {
 
     // Uma única thread executa o final do step
     if(thread_id == 0) {
+      if(empty(prev)) stop = TRUE;
       tmp = next;
       next = prev;
-      prev = tmp;
+      prev = tmp; 
       k++;
     }
 
     // Barreira para esperarem o final do step
     pthread_barrier_wait(&barrier);
+    if (stop) break;
     
   }
 
@@ -144,7 +154,6 @@ int main (int argc, char ** argv) {
   // !!!!! A MODIFICAR PARA HACER MISMO IMPUT QUE EL RESTO
 
   //Establecer tamaño
-  int width = 0, height = 0;
   if (argc > 1)
     width = atoi(argv[1]);
   if (argc > 2)
@@ -175,12 +184,20 @@ int main (int argc, char ** argv) {
     pthread_create(&threads[i], NULL, defineWork, arg);
   }
 
+  time_t start, end;
+  start = clock();
   for (int i = 0; i < num_threads; ++i)
   {
     pthread_join(threads[i], NULL);
   }
+  end = clock();
+  float msecs = ((float) (end - start)*1000) / CLOCKS_PER_SEC;
   //Escribir en final
   print_to_file(prev, width, height);
+  printf("Generations:\t%d\n", k);
+  printf("Execution time:\t%.2f msecs\n", msecs);
+
+  printf("Finished\n");
   pthread_barrier_destroy(&barrier);
   free_board(prev);
   free_board(next);
