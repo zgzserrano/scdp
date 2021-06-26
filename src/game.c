@@ -119,10 +119,12 @@ void play (int this_start, int this_end, int thread_id) {
     // Uma única thread executa o final do step
     if(thread_id == 0) {
       if(empty(prev)) stop = TRUE;
-      tmp = next;
-      next = prev;
-      prev = tmp; 
-      k++;
+      else { 
+        tmp = next;
+        next = prev;
+        prev = tmp; 
+        k++;
+      }
     }
 
     // Barreira para esperarem o final do step

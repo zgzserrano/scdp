@@ -4,9 +4,10 @@
 #define BLOCK_SIZE 32
 
 #define GEN_LIMIT 1000
-
+/*
 #define CHECK_SIMILARITY
 #define SIMILARITY_FREQUENCY 3
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -211,9 +212,11 @@ int main(int argc, char *argv[])
     int univ_grid_size = (width <= BLOCK_SIZE * 2 || height <= BLOCK_SIZE) ? (int)ceil((width + 2) * (height + 2) / (float)BLOCK_SIZE) : (int)ceil((width + 2) * (height + 2) / (float)(BLOCK_SIZE * BLOCK_SIZE));
 
     int generation = 0;
+    /*
 #ifdef CHECK_SIMILARITY
     int counter = 0;
 #endif
+*/
 
     // Get currect timestamp: calculations are about to start
     timestamp t_start;
@@ -234,7 +237,7 @@ int main(int argc, char *argv[])
         evolve<<<grid_size, block_size>>>(d_univ, d_new_univ, width, height);
         cudaSafeCall(cudaGetLastError());
         cudaSafeCall(cudaDeviceSynchronize());
-
+/*
 #ifdef CHECK_SIMILARITY
         // Check new and old generation, if they are the same: exit
         counter++;
@@ -254,7 +257,7 @@ int main(int argc, char *argv[])
             counter = 0;
         }
 #endif
-
+*/
         // Check if the array is empty, if it is: exit
         empty<<<univ_grid_size, BLOCK_SIZE>>>(d_new_univ, size, d_alive);
         cudaSafeCall(cudaGetLastError());

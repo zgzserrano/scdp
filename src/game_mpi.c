@@ -5,8 +5,8 @@
 
 #define GEN_LIMIT 1000
 
-#define CHECK_SIMILARITY
-#define SIMILARITY_FREQUENCY 3
+//#define CHECK_SIMILARITY
+//#define SIMILARITY_FREQUENCY 3
 
 #define true 1
 #define false 0
@@ -114,7 +114,7 @@ int empty_all(char **local, int width_local, int height_local, MPI_Comm *new_com
     return (global_sum == comm_sz);
 }
 
-int similarity(char **local, char **local_old, int width_local, int height_local)
+/*int similarity(char **local, char **local_old, int width_local, int height_local)
 {
     // Check if the internal grid is the same with the previous generation
     for (int y = 1; y <= height_local; y++)
@@ -141,7 +141,7 @@ int similarity_all(char **local, char **local_old, int width_local, int height_l
     // between generations, with the total number of instances
     return (global_sum == comm_sz);
 }
-
+*/
 void game(int width, int height, char *fileArg)
 {
     // Allocate space for the universal array, the main grid
@@ -273,9 +273,10 @@ void game(int width, int height, char *fileArg)
         new[i] = &c[i * (height_local + 2)];
 
     int generation = 1;
-#ifdef CHECK_SIMILARITY
+/*#ifdef CHECK_SIMILARITY
     int counter = 0;
 #endif
+*/
 
     MPI_Cart_coords(new_comm, me, ndims, coords);
 
@@ -406,7 +407,7 @@ void game(int width, int height, char *fileArg)
         char **temp_array = local;
         local = new;
         new = temp_array;
-
+/*
 #ifdef CHECK_SIMILARITY
         counter++;
         if (counter == SIMILARITY_FREQUENCY)
@@ -416,7 +417,7 @@ void game(int width, int height, char *fileArg)
             counter = 0;
         }
 #endif
-
+*/
         generation++;
 
     } // End of while loop
